@@ -26,6 +26,8 @@ namespace Zork
             {new Room("Dense Woods"), new Room("North of House"), new Room("Clearing")}
 
         };
+        static Dictionary<string, Room> RoomMap;
+
 
         public static Room CurrentRoom
         {
@@ -34,6 +36,12 @@ namespace Zork
         private static (int Row, int Column) Location = (1, 1);
         private static void InitializeRoomDescriptions()
         {
+            RoomMap = new Dictionary<string, Room>();
+            foreach (Room room in Rooms)
+            {
+                RoomMap.Add(room.Name, room);
+            }
+
             Rooms[0, 0].Description = "You are on a rock-strewn trail.";
             Rooms[0, 1].Description = "You are facing the south side of a white house. There is no door here, and all the windows are barred."; 
             Rooms[0, 2].Description = "You are at the top of the Great Canyon on its south wall.";
@@ -48,6 +56,10 @@ namespace Zork
         {
             InitializeRoomDescriptions();
 
+            Console.WriteLine("Welcome to Zork");
+
+
+            Room previousRoom = null;
             Commands command = Commands.UNKNOWN;
             while (command != Commands.QUIT)
             {
@@ -55,6 +67,7 @@ namespace Zork
                 command = ToCommand(Console.ReadLine().Trim());
 
                 string outputString = "";
+                bool moved = false;
                 switch (command)
                 {
                     case Commands.LOOK:
@@ -64,10 +77,11 @@ namespace Zork
                     case Commands.SOUTH:
                     case Commands.EAST:
                     case Commands.WEST:
-                        outputString = Move(command) ? CurrentRoom.Description : "You cannot move in that direction.";
+                        moved = Move(command);
+                        outputString = moved ? CurrentRoom.ToString() : "You cannot move in that direction.";
                         break;
                     case Commands.QUIT:
-                        outputString = "Exiting the game.";
+                        outputString = "Thank you for playing!";
                         break;
                     default:
                         outputString = "Unknown command.";
@@ -75,6 +89,12 @@ namespace Zork
                 }
 
                 Console.WriteLine(outputString);
+
+                if(moved && previousRoom != CurrentRoom)
+                {
+                    previousRoom = CurrentRoom;
+                    Console.WriteLine(CurrentRoom.Description);
+                }
             }
         }
 
